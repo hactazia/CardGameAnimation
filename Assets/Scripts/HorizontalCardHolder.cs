@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(HorizontalLayoutGroup))]
 public class HorizontalCardHolder : MonoBehaviour
@@ -14,8 +15,9 @@ public class HorizontalCardHolder : MonoBehaviour
 
     [Header("Spawn Settings")] [SerializeField]
     private int cardsToSpawn = 7;
+    public int maxCards = 15;
 
-    public SlotCard[] slots;
+    public List<SlotCard> slots;
 
     bool isCrossing = false;
     [SerializeField] private bool tweenCardReturn = true;
@@ -23,27 +25,45 @@ public class HorizontalCardHolder : MonoBehaviour
     void Start()
     {
         for (var i = 0; i < cardsToSpawn; i++)
-        {
-            var s = Instantiate(slotPrefab.gameObject, transform);
-            s.name = $"[Slot] {i}";
-        }
-
-        slots = GetComponentsInChildren<SlotCard>();
-
-        var cardCount = 0;
-
-        foreach (var slot in slots)
-        {
-            var card = slot.card;
-            card.PointerEnterEvent.AddListener(CardPointerEnter);
-            card.PointerExitEvent.AddListener(CardPointerExit);
-            card.BeginDragEvent.AddListener(BeginDrag);
-            card.EndDragEvent.AddListener(EndDrag);
-            card.name = cardCount.ToString();
-            cardCount++;
-        }
-
+            AddCard();
+               
         StartCoroutine(Frame());
+    }
+
+    public void AddCard()
+    {
+        if (slots.Count > maxCards) return;
+        var s = Instantiate(slotPrefab.gameObject, transform);
+        s.name = $"[Slot] {slots.Count}";
+        var slot = s.GetComponent<SlotCard>();
+        slots.Add(slot);
+        var card = slot.card;
+        card.PointerEnterEvent.AddListener(CardPointerEnter);
+        card.PointerExitEvent.AddListener(CardPointerExit);
+        card.BeginDragEvent.AddListener(BeginDrag);
+        card.EndDragEvent.AddListener(EndDrag);
+    }
+
+    public void ClearCards()
+    {
+        Debug.Log($"Clear: {slots.Count}");
+
+        if (slots.Count < 1) 
+            return;
+        
+        foreach(var slot in slots.ToArray())
+            RemoveCard(slot); 
+    }
+
+    public void RemoveCard(Card card)
+    {
+        var slot = GetSlotFromCard(card);
+        if (slot != null) RemoveCard(slot);
+    }
+    public void RemoveCard(SlotCard slot) {
+        Debug.Log($"Remove: {slot}");
+        slots.Remove(slot);
+        Destroy(slot.gameObject);
     }
 
     private IEnumerator Frame()
@@ -100,7 +120,7 @@ public class HorizontalCardHolder : MonoBehaviour
         if (isCrossing)
             return;
 
-        for (var i = 0; i < slots.Length; i++)
+        for (var i = 0; i < slots.Count; i++)
         {
             var card = slots[i].card;
             if (selectedCard.transform.position.x > card.transform.position.x)

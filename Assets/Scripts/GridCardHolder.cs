@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using System.Linq;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(GridLayoutGroup))]
 public class GridCardHolder : MonoBehaviour
@@ -13,7 +14,8 @@ public class GridCardHolder : MonoBehaviour
 
     [SerializeField] private SlotCard slotPrefab;
 
-    [Header("Spawn Settings")] [SerializeField]
+    [Header("Spawn Settings")]
+    [SerializeField]
     private Vector2Int gridDimension = new(4, 4);
 
     public SlotCard[] slots;
@@ -180,4 +182,15 @@ public class GridCardHolder : MonoBehaviour
         foreach (var card in slots.Select(slot => slot.card))
             card?.cardVisual?.UpdateIndex();
     }
+
+    public bool AddCardToGrid(SlotCard slot, Card card)
+    {
+        if (slot.card) return false;
+        slot.SetCard(card);
+        return true;
+    }
 }
+
+
+
+    
