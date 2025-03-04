@@ -65,6 +65,11 @@ public class CardVisual : MonoBehaviour
     private float curveYOffset;
     private float curveRotationOffset;
     private Coroutine pressCoroutine;
+    //on a ajouter ces 3 pour kpùkpùrekùek
+    private Text life;
+    private Text economy;
+    private Card champion;
+    //kjhklholholhjojmjm
 
     private void Start()
     {
